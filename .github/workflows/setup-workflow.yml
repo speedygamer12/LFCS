@@ -15,8 +15,8 @@ jobs:
       with:
         files: ".gitignore, LICENSE, README.md" 
 
-    - name: FIle exists
-      if: steps.check_files.output.file_exists === 'true'
+    - name: File exists
+      if: steps.check_files.outputs.file_exists === 'true'
 
       run: echo All files exists!
     
