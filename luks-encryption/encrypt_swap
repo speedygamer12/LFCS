@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+prevswap=$(cat /proc/swap)
+echo "killing swap ${prevswap}"
+swapoff prevswap
+echo "Give partition to luks and making it available for format"
+cryptsetup luksFormat prevswap
+cryptsetup luksOpen prevswap swapcrypt
+echo "formatting the encrypted disk to use for swap"
+mkswap /dev/mapper/swapcrypt
+swapon /dev/mapper/swapcrypt
+echo "$(cat /proc/swaps)"
+echo "Do you want to activate encrypted swap partition on boot"
+read input
+if [ "$input" == "yes" ]
+then 
+echo "swapcrypt ${prevswap} \ 
+/dev/urandom swap,cipher=aes-cbc-essiv:sha256,size=256" >> /etc/crypttab
+echo "/dev/mapper/swapcrypt none swap defaults 0 0" >> /etc/fstab
+fi
+
